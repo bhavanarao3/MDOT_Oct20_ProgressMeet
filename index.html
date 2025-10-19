@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Survey: 3D Reconstruction & AI Damage Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+        
+        .slides-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            color: white;
+        }
+        
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h2 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.5em;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+        }
+        
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        li {
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 12px;
+        }
+        
+        li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1e3c72;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            font-size: 1em;
+        }
+        
+        tr:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .highlight {
+            background: #ffd700;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin: 5px;
+        }
+        
+        .badge-green {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .badge-yellow {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .badge-red {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .badge-blue {
+            background: #3498db;
+            color: white;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .slide-number {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            z-index: 1000;
+        }
+        
+        .comparison-table {
+            font-size: 0.95em;
+        }
+        
+        .comparison-table th {
+            font-size: 1em;
+        }
+        
+        .comparison-table td {
+            font-size: 0.95em;
+        }
+        
+        .big-number {
+            font-size: 4em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .callout {
+            background: rgba(255, 215, 0, 0.2);
+            border-left: 5px solid #ffd700;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .callout p {
+            margin-bottom: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-content > * {
+            animation: fadeIn 0.6s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="slides-container" id="slidesContainer">
+        <!-- Slide 1: Title -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Algorithm Survey</h1>
+                <p class="subtitle">3D Reconstruction & AI Damage Assessment for VPI</p>
+                <p style="font-size: 1.2em; opacity: 0.8; margin-top: 60px;">Interim Report 2.4</p>
+                <p style="font-size: 1.1em; opacity: 0.8;">University of Maryland | Institute for Systems Research</p>
+                <p style="font-size: 1.1em; opacity: 0.8;">MDOT SHA VPI Phase 2 | November 2024</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>📋 Survey Overview</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>🎯 Objectives</h3>
+                        <ul>
+                            <li>Survey state-of-the-art algorithms</li>
+                            <li>Evaluate 3D reconstruction methods</li>
+                            <li>Assess AI damage detection capabilities</li>
+                            <li>Map to MDOT SHA crawler platforms</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>📊 Methodology</h3>
+                        <ul>
+                            <li>Literature review (2017-2024)</li>
+                            <li>Commercial platform analysis</li>
+                            <li>Peer DOT benchmarking</li>
+                            <li>Platform compatibility assessment</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout" style="margin-top: 30px;">
+                    <p><strong>Focus:</strong> Algorithms deployable on <span class="highlight">CUES and Envirosight crawler platforms</span> for offline (post-processing) workflow</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: 3D Reconstruction - Why It Matters -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🔬 3D Reconstruction: Why It Matters</h2>
+                <div class="grid-2">
+                    <div>
+                        <h3>Current Limitations (2D Video)</h3>
+                        <ul>
+                            <li>Limited spatial information</li>
+                            <li>Difficult to measure dimensions</li>
+                            <li>Can't revisit from different angles</li>
+                            <li>Poor integration with GIS/CAD</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>3D Reconstruction Benefits</h3>
+                        <ul>
+                            <li><strong>Digital twins</strong> of pipe interiors</li>
+                            <li><strong>Quantitative measurements</strong> (crack width, offsets)</li>
+                            <li><strong>Multi-viewpoint analysis</strong> in post-processing</li>
+                            <li><strong>GIS integration</strong> for asset management</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout" style="margin-top: 30px;">
+                    <p><strong>Data Fusion:</strong> Combines 2D imagery + kinematic data (IMU) + range measurements (LiDAR/laser profiler) → Comprehensive 3D model with visual texture</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: 3D Reconstruction Algorithms -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤖 3D Reconstruction Algorithms</h2>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>Sensors Required</th>
+                                <th>Computational Need</th>
+                                <th>Maturity</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>EMA-VIO</strong></td>
+                                <td>Camera + IMU</td>
+                                <td>Low (CPU only)</td>
+                                <td><span class="badge badge-green">Mature</span></td>
+                                <td>Lightweight trajectory tracking</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kimera</strong></td>
+                                <td>Stereo/RGB-D + IMU</td>
+                                <td>Moderate-High (GPU)</td>
+                                <td><span class="badge badge-green">Mature</span></td>
+                                <td>Research-grade with semantic labeling</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SplaTAM</strong></td>
+                                <td>RGB-D (camera + laser profiler)</td>
+                                <td>High (RTX 3090+)</td>
+                                <td><span class="badge badge-yellow">Research</span></td>
+                                <td>Highest quality 3D reconstruction</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DarkSLAM</strong></td>
+                                <td>Camera</td>
+                                <td>High (GPU for GAN)</td>
+                                <td><span class="badge badge-yellow">Research</span></td>
+                                <td>Low-light preprocessing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Top Pick - SplaTAM -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>⭐ Top Recommendation: SplaTAM</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Why SplaTAM?</h3>
+                        <ul>
+                            <li><span class="big-number" style="font-size: 2.5em;">2X</span></li>
+                            <li>Improvement in pose estimation</li>
+                            <li>Improvement in map reconstruction</li>
+                            <li>Uses 3D Gaussian Splatting</li>
+                            <li>Photorealistic rendering</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Requirements for MDOT SHA</h3>
+                        <ul>
+                            <li>RGB-D input (camera + laser profiler)</li>
+                            <li>Laser profiler already recommended (Task 2.2)</li>
+                            <li>Offline processing on workstation</li>
+                            <li>RTX 3090 or better GPU (~$5K-10K)</li>
+                            <li>Open-source implementation available</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout" style="margin-top: 30px;">
+                    <p><strong>Perfect fit for crawlers:</strong> Tethered platform = no battery concerns. Process overnight while operators prepare for next day's work.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: AI Damage Assessment Overview -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🤖 AI Damage Assessment</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3>Proven Benefits</h3>
+                        <div class="big-number" style="font-size: 2.5em;">50-70%</div>
+                        <p>Review time reduction</p>
+                        <p style="font-size: 0.9em; opacity: 0.8;">(Phoenix, NYC DEP)</p>
+                    </div>
+                    <div class="card">
+                        <h3>Detection Accuracy</h3>
+                        <div class="big-number" style="font-size: 2.5em;">95-99%</div>
+                        <p>For cracks & spalling</p>
+                        <p style="font-size: 0.9em; opacity: 0.8;">(Commercial platforms)</p>
+                    </div>
+                    <div class="card">
+                        <h3>ROI Timeline</h3>
+                        <div class="big-number" style="font-size: 2.5em;">3-8</div>
+                        <p>Months to payback</p>
+                        <p style="font-size: 0.9em; opacity: 0.8;">(Based on time savings)</p>
+                    </div>
+                </div>
+                <div class="callout" style="margin-top: 30px;">
+                    <p><strong>Key Insight:</strong> AI doesn't replace operators - it <span class="highlight">pre-flags defects</span> for faster human review and validation</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Damage Types Coverage -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🔍 Damage Detection Coverage</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Damage Type</th>
+                                <th>Detection Method</th>
+                                <th>Measurement</th>
+                                <th>Readiness</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cracks</strong></td>
+                                <td>2D visual CNN</td>
+                                <td>Length, approximate width</td>
+                                <td><span class="badge badge-green">Ready</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cracks (precise)</strong></td>
+                                <td>3D point cloud</td>
+                                <td>Precise width & depth</td>
+                                <td><span class="badge badge-yellow">Research</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Spalling</strong></td>
+                                <td>2D texture analysis</td>
+                                <td>Severity class</td>
+                                <td><span class="badge badge-green">Ready</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deformation</strong></td>
+                                <td>Laser profiler</td>
+                                <td>Ovality, diameter</td>
+                                <td><span class="badge badge-green">Ready (Hardware)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Joint Dislocation</strong></td>
+                                <td>3D geometric analysis</td>
+                                <td>Offset distance</td>
+                                <td><span class="badge badge-red">Phase 3 Needed</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rebar Corrosion</strong></td>
+                                <td>Visual + IR patterns</td>
+                                <td>Severity class</td>
+                                <td><span class="badge badge-red">Limited</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Commercial AI Platforms -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>💼 Commercial AI Platforms</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>WinCan VX AI Module</h3>
+                        <ul>
+                            <li><span class="badge badge-green">95%+ accuracy</span></li>
+                            <li>Direct PACP coding integration</li>
+                            <li>Works with existing WinCan VX</li>
+                            <li>Local or cloud processing</li>
+                            <li><strong>Cost:</strong> $10K-15K/year</li>
+                        </ul>
+                        <div class="callout" style="margin-top: 15px;">
+                            <p><strong>Advantage:</strong> SHA already uses WinCan VX</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>SewerAI Pioneer</h3>
+                        <ul>
+                            <li><span class="badge badge-green">95-99% accuracy</span></li>
+                            <li>NASSCO auto-tagging</li>
+                            <li>Cloud-based processing</li>
+                            <li>Multi-agency validation</li>
+                            <li><strong>Cost:</strong> $15K-25K/year</li>
+                        </ul>
+                        <div class="callout" style="margin-top: 15px;">
+                            <p><strong>Advantage:</strong> Highest reported accuracy</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <p style="font-size: 1.4em;"><strong>Recommendation:</strong> Pilot test <span class="highlight">both platforms</span> on 50-100 MDOT SHA videos to compare</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Platform Compatibility -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🔧 Platform Compatibility: CUES & Envirosight</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>CUES Steerable Pipe Ranger</h3>
+                        <p><strong>3D Reconstruction:</strong></p>
+                        <ul>
+                            <li>Add laser profiler (Task 2.2) ✅</li>
+                            <li>Add IMU module ($2K-5K)</li>
+                            <li>SplaTAM offline processing</li>
+                        </ul>
+                        <p><strong>AI Damage Assessment:</strong></p>
+                        <ul>
+                            <li>WinCan VX AI or SewerAI</li>
+                            <li>Upload video to cloud</li>
+                            <li>Import results to GraniteNet</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Envirosight Rovver X</h3>
+                        <p><strong>3D Reconstruction:</strong></p>
+                        <ul>
+                            <li>Better sensor mounting options</li>
+                            <li>Native LiDAR support (Velodyne, Ouster)</li>
+                            <li>Same offline processing approach</li>
+                        </ul>
+                        <p><strong>AI Damage Assessment:</strong></p>
+                        <ul>
+                            <li>Same as CUES (WinCan VX AI)</li>
+                            <li>Cloud-based processing</li>
+                            <li>Identical workflow</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Integrated Workflow -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🔄 Proposed Integrated Workflow</h2>
+                <div class="card" style="max-width: 900px; margin: 0 auto;">
+                    <h3>Seamless Integration with Current Practice</h3>
+                    <ol style="list-style: decimal; padding-left: 40px;">
+                        <li><strong>Field Inspection:</strong> Crawler captures HD video + laser profiler + IMU data (no change to operator workflow)</li>
+                        <li><strong>Overnight Processing:</strong> Automated pipeline runs 3D reconstruction + AI damage detection</li>
+                        <li><strong>Next Morning:</strong> Certified operator opens WinCan VX with pre-flagged defects and 3D model</li>
+                        <li><strong>Human Review:</strong> Operator validates AI detections, reviews 3D reconstruction, finalizes NASSCO coding</li>
+                        <li><strong>Export:</strong> Data flows to VueWorks (asset management) and ArcGIS (GIS)</li>
+                    </ol>
+                </div>
+                <div class="callout" style="margin-top: 30px;">
+                    <p><strong>Key Principle:</strong> <span class="highlight">Human-in-loop</span> maintained for quality assurance. AI accelerates, doesn't replace, expert review.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Implementation Timeline -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>📅 Implementation Roadmap</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3>Near-Term (0-12 months)</h3>
+                        <ul>
+                            <li><strong>Pilot Commercial AI</strong></li>
+                            <li>Test WinCan AI & SewerAI on 50-100 videos</li>
+                            <li>Measure accuracy & time savings</li>
+                            <li><strong>Deploy Laser Profiler</strong></li>
+                            <li>Retrofit CUES/Envirosight</li>
+                            <li>Immediate deformation data</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Medium-Term (1-2 years)</h3>
+                        <ul>
+                            <li><strong>Scale AI Deployment</strong></li>
+                            <li>Full operational use</li>
+                            <li>Operator training complete</li>
+                            <li><strong>Implement 3D Pipeline</strong></li>
+                            <li>Add IMU sensors</li>
+                            <li>Deploy SplaTAM processing</li>
+                            <li>GIS integration live</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Long-Term (2+ years)</h3>
+                        <ul>
+                            <li><strong>Phase 3 Research</strong></li>
+                            <li>Joint dislocation algorithms</li>
+                            <li>Rebar corrosion detection</li>
+                            <li>Custom MDOT classifiers</li>
+                            <li><strong>Advanced Analytics</strong></li>
+                            <li>Predictive maintenance models</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Cost Summary -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>💰 Investment Summary</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Technology</th>
+                                <th>Timeline</th>
+                                <th>Investment</th>
+                                <th>Expected Benefit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Commercial AI Platform</strong></td>
+                                <td>3-6 months</td>
+                                <td>$12K-30K/year</td>
+                                <td><span class="badge badge-green">50-70% review time reduction</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Laser Profiler Retrofit</strong></td>
+                                <td>3-6 months</td>
+                                <td>$15K-25K one-time</td>
+                                <td><span class="badge badge-green">Quantitative deformation data</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>IMU Sensors</strong></td>
+                                <td>2-4 months</td>
+                                <td>$2K-5K per unit</td>
+                                <td><span class="badge badge-blue">Enables 3D reconstruction</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>3D Reconstruction Software</strong></td>
+                                <td>12-18 months</td>
+                                <td>$30K-50K integration</td>
+                                <td><span class="badge badge-green">Digital twins for asset mgmt</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Processing Workstation</strong></td>
+                                <td>1-2 months</td>
+                                <td>$5K-10K</td>
+                                <td><span class="badge badge-blue">Offline processing capacity</span></td>
+                            </tr>
+                            <tr style="background: rgba(255, 215, 0, 0.2); font-weight: bold;">
+                                <td><strong>TOTAL (Complete System)</strong></td>
+                                <td>12-18 months</td>
+                                <td><strong>~$50K-90K one-time + $12K-30K/year</strong></td>
+                                <td><span class="badge badge-green">Comprehensive upgrade</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Key Recommendations -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🎯 Key Recommendations</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Immediate Actions</h3>
+                        <ul>
+                            <li><strong>Priority 1:</strong> Pilot commercial AI (WinCan VX AI or SewerAI)</li>
+                            <li>Test on 50-100 MDOT SHA videos</li>
+                            <li>Measure accuracy and time savings</li>
+                            <li><strong>Priority 2:</strong> Deploy laser profiler</li>
+                            <li>Immediate deformation measurement</li>
+                            <li>Foundation for 3D reconstruction</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Strategic Investments</h3>
+                        <ul>
+                            <li><strong>3D Reconstruction:</strong> SplaTAM with laser profiler data</li>
+                            <li>Add IMU sensors to crawlers</li>
+                            <li>Deploy offline processing pipeline</li>
+                            <li><strong>Phase 3 Research:</strong> Custom algorithms for joint dislocation, rebar corrosion</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout" style="margin-top: 30px;">
+                    <p><strong>Bottom Line:</strong> Commercial AI + laser profiler = <span class="highlight">immediate value</span>. 3D reconstruction = <span class="highlight">strategic asset</span>. Custom algorithms = <span class="highlight">Phase 3 opportunity</span>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Research Gaps & Phase 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>🔬 Research Gaps & Phase 3 Opportunities</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Current Gaps</h3>
+                        <ul>
+                            <li><strong>Joint Dislocation:</strong> No commercial detection available</li>
+                            <li><strong>Rebar Corrosion:</strong> Limited algorithm development</li>
+                            <li><strong>Point Cloud Defect Analysis:</strong> Research-stage only</li>
+                            <li><strong>MDOT-Specific Classifiers:</strong> Generic models need Maryland pipe training</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Potential Phase 3 Scope</h3>
+                        <ul>
+                            <li><strong>Custom Algorithm Development</strong></li>
+                            <li>Joint dislocation using 3D geometry</li>
+                            <li>Rebar corrosion pattern recognition</li>
+                            <li><strong>Field Testing</strong></li>
+                            <li>Pilot retrofits on real inspections</li>
+                            <li>Validation and refinement</li>
+                            <li><strong>Est. Investment:</strong> $150K-250K over 18-24 months</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Questions for MDOT SHA -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2>❓ Discussion Questions</h2>
+                <div class="card" style="max-width: 900px; margin: 0 auto;">
+                    <h3>Decision Points for MDOT SHA</h3>
+                    <ul>
+                        <li><strong>AI Platform Selection:</strong> WinCan VX AI (existing integration) vs. SewerAI (highest accuracy)?</li>
+                        <li><strong>Pilot Scope:</strong> Which pipe segments should we use for AI testing? How many videos?</li>
+                        <li><strong>Budget Availability:</strong> What's the FY25/FY26 budget for VPI technology upgrades?</li>
+                        <li><strong>Priority Defects:</strong> Which damage types are most critical to MDOT SHA? (informs Phase 3 priorities)</li>
+                        <li><strong>Phase 3 Interest:</strong> Does SHA want UMD to pursue custom algorithm development?</li>
+                        <li><strong>Office Visit:</strong> When can we schedule the office workflow analysis?</li>
+                    </ul>
+                </div>
+                <div class="callout" style="margin-top: 30px;">
+                    <p><strong>Goal:</strong> Align Phase 2 recommendations with MDOT SHA operational priorities and budget realities</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="slide-number" id="slideNumber">1 / 15</div>
+    
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = document.querySelectorAll('.slide').length;
+        
+        function updateSlide() {
+            const container = document.getElementById('slidesContainer');
+            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            document.getElementById('slideNumber').textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+        
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+        
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            } else if (touchEndX - touchStartX > 50) {
+                previousSlide();
+            }
+        });
+    </script>
+</body>
+</html>
